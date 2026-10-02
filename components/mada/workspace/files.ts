@@ -1,0 +1,96 @@
+export type WorkspaceFile = { name: string; path: string; content: string[] }
+
+export const FILES: WorkspaceFile[] = [
+  {
+    name: 'page.tsx',
+    path: 'app/page.tsx',
+    content: [
+      "import { Hero } from '@/components/hero'",
+      "import { Services } from '@/components/services'",
+      "import { getProjects } from '@/lib/db'",
+      '',
+      '// Bilingual landing page for Sharara Agency',
+      'export default async function Page() {',
+      '  const projects = await getProjects({ limit: 6 })',
+      '',
+      '  return (',
+      '    <main dir="rtl" className="min-h-screen bg-zinc-950">',
+      '      <Hero',
+      '        title="شرارة للإبداع الرقمي"',
+      '        subtitle="We design brands that ignite."',
+      '        cta="ابدأ مشروعك"',
+      '      />',
+      '      <Services items={projects} />',
+      '    </main>',
+      '  )',
+      '}',
+    ],
+  },
+  {
+    name: 'schema.sql',
+    path: 'supabase/schema.sql',
+    content: [
+      '-- Projects showcased on the agency site',
+      'CREATE TABLE projects (',
+      '  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),',
+      '  title_en text NOT NULL,',
+      '  title_ar text NOT NULL,',
+      '  budget numeric DEFAULT 0,',
+      '  owner_id uuid REFERENCES auth.users,',
+      '  created_at timestamptz DEFAULT now()',
+      ');',
+      '',
+      'ALTER TABLE projects ENABLE ROW LEVEL SECURITY;',
+      '',
+      'CREATE POLICY "Owners read own projects"',
+      '  ON projects FOR SELECT',
+      '  USING (auth.uid() = owner_id);',
+    ],
+  },
+  {
+    name: 'layout.tsx',
+    path: 'app/layout.tsx',
+    content: [
+      "import { Tajawal } from 'next/font/google'",
+      "import './globals.css'",
+      '',
+      "const tajawal = Tajawal({ subsets: ['arabic'], weight: ['400', '700'] })",
+      '',
+      'export default function RootLayout({ children }) {',
+      '  return (',
+      '    <html lang="ar" dir="rtl">',
+      '      <body className={tajawal.className}>{children}</body>',
+      '    </html>',
+      '  )',
+      '}',
+    ],
+  },
+  {
+    name: 'db.ts',
+    path: 'lib/db.ts',
+    content: [
+      "import { createClient } from '@/lib/supabase/server'",
+      '',
+      'export async function getProjects({ limit = 10 }) {',
+      '  const supabase = await createClient()',
+      '  const { data } = await supabase',
+      "    .from('projects')",
+      "    .select('*')",
+      '    .limit(limit)',
+      '  return data ?? []',
+      '}',
+    ],
+  },
+]
+
+export const TREE = [
+  { folder: 'app', files: ['layout.tsx', 'page.tsx'] },
+  { folder: 'lib', files: ['db.ts'] },
+  { folder: 'supabase', files: ['schema.sql'] },
+]
+
+export const PROJECTS = [
+  { name: 'Sharara Agency', nameAr: 'وكالة شرارة', updated: '2m ago', color: 'bg-amber-400' },
+  { name: 'FinTech SaaS', nameAr: 'منصة مالية', updated: '1h ago', color: 'bg-emerald-400' },
+  { name: 'Student Hub', nameAr: 'مركز الطلاب', updated: 'Yesterday', color: 'bg-sky-400' },
+]
