@@ -1,5 +1,6 @@
 import { streamText } from 'ai'
 import { z } from 'zod'
+import { getSessionUser } from '@/lib/auth'
 
 export const maxDuration = 120
 
@@ -29,6 +30,11 @@ Output rules (strict):
 When CURRENT HTML is provided, treat the prompt as an edit request: return the full updated document, preserving everything the user did not ask to change.`
 
 export async function POST(req: Request) {
+  const user = await getSessionUser()
+  if (!user) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const parsed = requestSchema.safeParse(await req.json().catch(() => null))
   if (!parsed.success) {
     return Response.json({ error: 'Invalid request' }, { status: 400 })

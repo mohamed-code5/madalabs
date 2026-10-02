@@ -134,7 +134,7 @@ function ViewToggle({ view, onViewChange }: HeaderProps) {
   )
 }
 
-function LanguageSwitch() {
+export function LanguageSwitch() {
   const { lang, setLang } = useI18n()
   const options: { value: Lang; label: string }[] = [
     { value: 'en', label: 'EN' },
