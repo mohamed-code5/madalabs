@@ -133,6 +133,11 @@ const en = {
     generate: 'Generate App',
     generating: 'Generating…',
     noCredits: 'No credits left',
+    stop: 'Stop',
+    error: 'Generation failed. Please try again.',
+    emptyTitle: 'Nothing generated yet',
+    emptyBody: 'Describe the site you want below and Mada will build it live.',
+    building: 'Building preview…',
   },
 }
 
@@ -250,6 +255,11 @@ const ar: Dict = {
     generate: 'توليد التطبيق',
     generating: 'جارٍ التوليد…',
     noCredits: 'لا توجد أرصدة',
+    stop: 'إيقاف',
+    error: 'فشل التوليد. حاول مرة أخرى.',
+    emptyTitle: 'لم يتم توليد شيء بعد',
+    emptyBody: 'صِف الموقع الذي تريده بالأسفل وسيبنيه مدى مباشرةً.',
+    building: 'جارٍ بناء المعاينة…',
   },
 }
 

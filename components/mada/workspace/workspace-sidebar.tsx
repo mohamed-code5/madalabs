@@ -7,9 +7,9 @@ import { PROJECTS } from './files'
 
 export const MAX_CREDITS = 5
 
-type Props = { activeProject: string; onSelect: (name: string) => void; credits: number }
+type Props = { activeProject: string; onSelect: (name: string) => void; credits: number; disabled?: boolean }
 
-export function WorkspaceSidebar({ activeProject, onSelect, credits }: Props) {
+export function WorkspaceSidebar({ activeProject, onSelect, credits, disabled }: Props) {
   const { t, lang } = useI18n()
   const pct = (credits / MAX_CREDITS) * 100
 
@@ -37,9 +37,10 @@ export function WorkspaceSidebar({ activeProject, onSelect, credits }: Props) {
                 <button
                   type="button"
                   onClick={() => onSelect(p.name)}
+                  disabled={disabled && !active}
                   aria-current={active ? 'page' : undefined}
                   className={cn(
-                    'flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-start transition-colors',
+                    'flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-start transition-colors disabled:cursor-not-allowed disabled:opacity-50',
                     active ? 'bg-white/[0.07] text-foreground' : 'text-muted-foreground hover:bg-white/[0.04] hover:text-foreground',
                   )}
                 >

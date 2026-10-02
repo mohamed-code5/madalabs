@@ -7,9 +7,19 @@ import { useI18n } from '../i18n'
 
 type Device = 'desktop' | 'mobile'
 
-export function PreviewPanel({ project, revision }: { project: string; revision: number }) {
+type Props = { project: string; html?: string; revision: number; building: boolean }
+
+export function PreviewPanel({ project, html, revision, building }: Props) {
   const { t } = useI18n()
   const [device, setDevice] = useState<Device>('desktop')
+  const [reloadKey, setReloadKey] = useState(0)
+
+  const openInNewTab = () => {
+    if (!html) return
+    const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }))
+    window.open(url, '_blank', 'noopener,noreferrer')
+    setTimeout(() => URL.revokeObjectURL(url), 60_000)
+  }
 
   return (
     <section aria-label={t.workspace.preview} className="flex min-h-[520px] flex-col border-t border-white/[0.06] bg-black/20 lg:min-h-0 lg:w-[420px] lg:shrink-0 lg:border-s lg:border-t-0 xl:w-[480px]">
@@ -39,18 +49,59 @@ export function PreviewPanel({ project, revision }: { project: string; revision:
             </button>
           ))}
         </div>
-        <RefreshCw className="size-3.5 text-muted-foreground" aria-hidden="true" />
-        <ExternalLink className="size-3.5 text-muted-foreground" aria-hidden="true" />
+        <button
+          type="button"
+          onClick={() => setReloadKey((k) => k + 1)}
+          disabled={!html}
+          aria-label="Reload preview"
+          className="flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+        >
+          <RefreshCw className="size-3.5" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          onClick={openInNewTab}
+          disabled={!html}
+          aria-label="Open preview in new tab"
+          className="flex size-6 items-center justify-center rounded text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40"
+        >
+          <ExternalLink className="size-3.5" aria-hidden="true" />
+        </button>
       </div>
 
-      <div className="flex min-h-0 flex-1 items-start justify-center overflow-auto bg-[radial-gradient(circle_at_50%_0%,rgb(16_185_129/0.08),transparent_60%)] p-4 pb-32">
+      <div className="relative flex min-h-0 flex-1 items-start justify-center overflow-auto bg-[radial-gradient(circle_at_50%_0%,rgb(16_185_129/0.08),transparent_60%)] p-4 pb-32">
         <div
           className={cn(
-            'w-full overflow-hidden border border-white/10 bg-zinc-950 shadow-2xl transition-all duration-500',
+            'relative w-full overflow-hidden border border-white/10 bg-zinc-950 shadow-2xl transition-all duration-500',
             device === 'mobile' ? 'max-w-[300px] rounded-[2rem] border-4 border-zinc-800' : 'max-w-full rounded-xl',
+            html && (device === 'mobile' ? 'h-[560px]' : 'h-full min-h-[480px]'),
           )}
         >
-          <MiniSite project={project} revision={revision} compact={device === 'mobile'} />
+          {html ? (
+            <iframe
+              key={`${revision}-${reloadKey}`}
+              title={`${project} preview v${revision}`}
+              srcDoc={html}
+              sandbox="allow-scripts allow-popups"
+              className="size-full bg-white"
+            />
+          ) : (
+            <>
+              <MiniSite project={project} revision={revision} compact={device === 'mobile'} />
+              <div className="border-t border-white/[0.06] px-4 py-3 text-center">
+                <p className="text-xs font-medium text-zinc-200">{t.workspace.emptyTitle}</p>
+                <p className="mt-0.5 text-[11px] text-zinc-500">{t.workspace.emptyBody}</p>
+              </div>
+            </>
+          )}
+          {building && (
+            <div role="status" className="absolute inset-0 flex items-center justify-center bg-onyx/70 backdrop-blur-sm">
+              <span className="flex items-center gap-2 rounded-full border border-primary/30 bg-black/60 px-3 py-1.5 text-xs text-mint">
+                <Sparkles className="size-3.5 animate-pulse" aria-hidden="true" />
+                {t.workspace.building}
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </section>
